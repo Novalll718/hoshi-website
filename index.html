@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Hoshi Social Media</title>
+<style>
+  :root{
+    --accent1: #8a4bff;
+    --accent2: #00d0ff;
+  }
+  html,body{height:100%;margin:0;padding:0;overflow:hidden;font-family:Inter,system-ui,Arial;}
+  body{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background: linear-gradient(160deg,#0b1020 0%, #0f2140 50%, #160034 100%);
+    color:#fff;
+  }
+
+  /* container (glass card) */
+  .card{
+    position:relative;
+    z-index:4;
+    width:92%;
+    max-width:420px;
+    padding:26px;
+    border-radius:18px;
+    background:rgba(255,255,255,0.06);
+    backdrop-filter: blur(10px);
+    box-shadow:0 8px 30px rgba(0,0,0,0.6);
+    text-align:center;
+  }
+  h1{margin:0 0 14px;font-size:24px;letter-spacing:1px}
+  .btn{display:block;margin:10px auto;width:86%;max-width:320px;padding:12px 16px;border-radius:12px;text-decoration:none;color:#fff;font-weight:700;
+       background:linear-gradient(90deg,var(--accent1),var(--accent2));box-shadow:0 6px 18px rgba(0,0,0,0.35);}
+  .btn:active{transform:scale(.995)}
+
+  /* small twinkling stars - only few for performance */
+  .star{
+    position:fixed;
+    width:3px;height:3px;border-radius:50%;background:#fff;
+    opacity:0;transform:translateZ(0);
+    animation:twinkle linear infinite;
+    z-index:2;pointer-events:none;
+  }
+  @keyframes twinkle{
+    0%{opacity:0}50%{opacity:.95}100%{opacity:0}
+  }
+
+  /* lightweight meteors - use CSS animation; small count */
+  .meteor{
+    position:fixed;
+    width:2px;height:60px;
+    background: linear-gradient(to bottom, rgba(255,255,255,1), rgba(255,255,255,0));
+    transform: rotate(45deg);
+    filter:drop-shadow(0 0 6px rgba(255,255,255,.9));
+    z-index:1;pointer-events:none;
+    animation:meteor-fall linear forwards;
+  }
+  @keyframes meteor-fall{
+    from{opacity:1;transform: translate(0, -20vh) rotate(45deg) scaleY(0.9)}
+    to{opacity:0; transform: translate(60vw, 120vh) rotate(45deg) scaleY(0.9)}
+  }
+
+  /* subtle aurora overlay (pure CSS, low cost) */
+  .aurora{
+    position:fixed;inset:0;pointer-events:none;z-index:0;
+    background: radial-gradient(40% 40% at 50% 10%, rgba(120,0,255,0.08), rgba(0,200,220,0.04) 30%, transparent 35%);
+    mix-blend-mode:screen;filter:blur(18px);opacity:.9;
+  }
+
+  /* responsive tweaks */
+  @media (max-width:420px){
+    h1{font-size:20px}
+    .card{padding:20px;border-radius:16px}
+  }
+</style>
+</head>
+<body>
+
+<div class="aurora"></div>
+
+<!-- card content -->
+<div class="card" id="card">
+  <h1>Hoshi Social Media</h1>
+  <a class="btn" href="https://www.instagram.com/hoshihereed?igsh=MWtqZThnZTEwcG1rYQ==">Instagram</a>
+  <a class="btn" href="https://www.tiktok.com/@hoshihere">TikTok</a>
+  <a class="btn" href="https://discord.com/users/hoshihereee">Discord</a>
+</div>
+
+<script>
+/* ========== Lightweight stars (20 max) ========== */
+(function createStars(){
+  const count = 20; // keep low for performance
+  for(let i=0;i<count;i++){
+    const s = document.createElement('div');
+    s.className = 'star';
+    // random position but within viewport
+    s.style.left = (Math.random()*100) + 'vw';
+    s.style.top = (Math.random()*100) + 'vh';
+    s.style.animationDuration = (1.2 + Math.random()*1.8) + 's';
+    s.style.animationDelay = (Math.random()*3) + 's';
+    s.style.opacity = 0;
+    document.body.appendChild(s);
+  }
+})();
+
+/* ========== Few fast meteors but limited ========== */
+(function meteorsController(){
+  const MAX_SIMULTANEOUS = 2; // keep small
+  let active = 0;
+
+  function spawnMeteor(){
+    if(active >= MAX_SIMULTANEOUS) return;
+    active++;
+    const m = document.createElement('div');
+    m.className = 'meteor';
+    // spawn from random left in top area so diagonal falls across card
+    m.style.left = (Math.random()*100) + 'vw';
+    m.style.top = (-10 + Math.random()*5) + 'vh';
+    // randomize speed slightly
+    const dur = 0.45 + Math.random()*0.35; // short = fast
+    m.style.animationDuration = dur + 's';
+    document.body.appendChild(m);
+    // cleanup after finished
+    setTimeout(()=>{
+      m.remove();
+      active--;
+    }, (dur*1000) + 100);
+  }
+
+  // spawn occasionally (light load)
+  setInterval(()=>{
+    // small chance to spawn (so not constant)
+    if(Math.random() < 0.6) spawnMeteor();
+  }, 900);
+
+  // also allow one meteor on first load
+  setTimeout(spawnMeteor, 500);
+})();
+
+/* ========== Performance: resize canvas-free (no canvas used) ==========
+   This file avoids heavy canvas loops. It uses a few DOM elements + CSS animations.
+   If device is very low-end, increase the intervals or reduce star count above.
+*/
+</script>
+
+</body>
+</html>
